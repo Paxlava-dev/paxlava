@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────
+    function isAuth()          { return request.auth != null; }
+    function isUser(uid)       { return isAuth() && request.auth.uid == uid; }
+    function isSeller()        { return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller'; }
+    function isAdmin()         { return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    function isOwner(resource) { return isAuth() && resource.data.sellerId == request.auth.uid; }
+
+    // ── Users ─────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read:   if isAuth();
+      allow create: if isUser(uid);
+      allow update: if isUser(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Projects ──────────────────────────────────────────────────
+    match /projects/{projectId} {
+      // Anyone can read active projects; only the seller or admin can read drafts
+      allow read: if resource.data.status == 'active'
+                  || (isAuth() && (resource.data.sellerId == request.auth.uid || isAdmin()));
+
+      // Only sellers can create
+      allow create: if isSeller()
+                    && request.resource.data.sellerId == request.auth.uid;
+
+      // Seller can update their own; admin can update any
+      allow update: if isOwner(resource) || isAdmin();
+
+      // Soft-delete only (status → 'paused'); handled via API route
+      allow delete: if isAdmin();
+    }
+
+    // ── Orders ────────────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read:   if isAuth()
+                    && (resource.data.buyerId == request.auth.uid
+                        || resource.data.sellerId == request.auth.uid
+                        || isAdmin());
+      allow create: if isAuth(); // API route validates business rules
+      allow update: if isAdmin(); // Status changes only via API/Cloud Function
+    }
+
+    // ── Threads ───────────────────────────────────────────────────
+    match /threads/{threadId} {
+      allow read:   if isAuth()
+                    && (resource.data.buyerId  == request.auth.uid
+                        || resource.data.sellerId == request.auth.uid);
+      allow create: if isAuth();
+      allow update: if isAuth()
+                    && (resource.data.buyerId  == request.auth.uid
+                        || resource.data.sellerId == request.auth.uid);
+
+      // ── Messages sub-collection ──────────────────────────────
+      match /messages/{messageId} {
+        allow read:   if isAuth()
+                      && (get(/databases/$(database)/documents/threads/$(threadId)).data.buyerId  == request.auth.uid
+                          || get(/databases/$(database)/documents/threads/$(threadId)).data.sellerId == request.auth.uid);
+        allow create: if isAuth()
+                      && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false; // Messages are immutable
+      }
+    }
+
+    // ── Reviews ───────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read:   if true; // Public
+      allow create: if isAuth()
+                    && request.resource.data.buyerId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+  }
+}

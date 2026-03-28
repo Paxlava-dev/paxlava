@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom properties ───────────────────────────────────── */
+:root {
+  --font-mona: 'Mona Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FAF8F3;
+    color: #000;
+    font-family: var(--font-mona);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: #E8A838;
+    color: #000;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+}
+
+/* ── Component utilities ─────────────────────────────────── */
+@layer components {
+  /* Page section */
+  .page-section {
+    @apply px-8 py-16;
+  }
+
+  /* Hard shadow card */
+  .card-hard {
+    @apply bg-white border-2 border-black rounded-xl shadow-hard;
+  }
+
+  /* Gumroad-style border grid */
+  .border-grid {
+    @apply border-t-2 border-l-2 border-black;
+  }
+
+  .border-grid > * {
+    @apply border-r-2 border-b-2 border-black;
+  }
+
+  /* Pill tag */
+  .tag-pill {
+    @apply inline-block px-2.5 py-0.5 rounded-pill border border-black text-xs font-bold bg-cream;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs font-black uppercase tracking-widest text-gray-400 mb-2;
+  }
+
+  /* Big heading */
+  .heading-xl {
+    @apply text-5xl md:text-7xl font-black tracking-tighter leading-none;
+  }
+
+  .heading-lg {
+    @apply text-3xl md:text-5xl font-black tracking-tight leading-tight;
+  }
+}
+
+/* ── Gumroad-style interactive button ────────────────────── */
+@layer components {
+  /* Hard-shadow button: rests with offset shadow, lifts on hover, presses on active */
+  .btn-gum {
+    @apply transition-all duration-100 ease-out;
+    box-shadow: 3px 4px 0 #000;
+  }
+  .btn-gum:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 4px 6px 0 #000;
+  }
+  .btn-gum:active {
+    transform: translate(1px, 2px);
+    box-shadow: 1px 1px 0 #000;
+  }
+
+  .btn-gum-lg {
+    @apply transition-all duration-100 ease-out;
+    box-shadow: 5px 6px 0 #000;
+  }
+  .btn-gum-lg:hover {
+    transform: translate(-2px, -3px);
+    box-shadow: 7px 9px 0 #000;
+  }
+  .btn-gum-lg:active {
+    transform: translate(2px, 3px);
+    box-shadow: 2px 2px 0 #000;
+  }
+
+  /* Card that lifts on hover */
+  .card-lift {
+    @apply transition-all duration-150;
+    box-shadow: 3px 4px 0 #000;
+  }
+  .card-lift:hover {
+    transform: translate(-2px, -3px);
+    box-shadow: 5px 7px 0 #000;
+  }
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@layer utilities {
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%       { transform: translateY(-12px) rotate(3deg); }
+  }
+
+  @keyframes float-y2 {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%       { transform: translateY(-9px) rotate(2deg); }
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-4deg); }
+    50%       { transform: rotate(4deg); }
+  }
+
+  @keyframes sticker-pop {
+    0%   { transform: scale(0.7) rotate(-8deg); opacity: 0; }
+    70%  { transform: scale(1.06) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .animate-float-1 { animation: float-y  4s ease-in-out infinite; }
+  .animate-float-2 { animation: float-y2 5s ease-in-out infinite; }
+  .animate-float-3 { animation: float-y  6s 1s ease-in-out infinite; }
+  .animate-float-4 { animation: float-y2 4.5s 0.5s ease-in-out infinite; }
+  .animate-wiggle  { animation: wiggle   3s ease-in-out infinite; }
+  .animate-pop     { animation: sticker-pop 0.6s ease both; }
+
+  .drop-shadow-hard { filter: drop-shadow(3px 4px 0 #000); }
+
+  /* Pause marquee on hover */
+  .marquee-track:hover { animation-play-state: paused; }
+}
