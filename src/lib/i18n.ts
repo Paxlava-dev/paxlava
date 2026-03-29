@@ -314,5 +314,6 @@ const translations = {
   },
 } as const
 
-export type Translations = typeof translations.EN
+type Widen<T> = T extends string ? string : { [K in keyof T]: Widen<T[K]> }
+export type Translations = Widen<typeof translations.EN>
 export { translations }
