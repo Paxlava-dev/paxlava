@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Blog' }
 export const dynamic = 'force-dynamic'
 
 // ── Icon map by tag ──────────────────────────────────────────────────────────
-const TAG_META: Record<string, { Icon: React.ComponentType<{ size?: number; className?: string }>; bg: string }> = {
+const TAG_META: Record<string, { Icon: React.ComponentType<{ size?: number | string; className?: string }>; bg: string }> = {
   'Seller guide':    { Icon: Lightbulb,   bg: 'bg-amber'    },
   'Success story':   { Icon: TrendingUp,  bg: 'bg-teal'     },
   'Platform update': { Icon: Lock,        bg: 'bg-cobalt'   },
