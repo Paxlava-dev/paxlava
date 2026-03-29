@@ -9,6 +9,7 @@ import {
 import { ProjectCard } from '@/components/marketplace/ProjectCard'
 import { PaxlavaLogo } from '@/components/shared/PaxlavaLogo'
 import { CATEGORY_LABELS } from '@/lib/utils'
+import { useLang } from '@/contexts/LangContext'
 import type { Project } from '@/types'
 
 const CATEGORY_META: Record<string, { icon: React.ReactNode; bg: string }> = {
@@ -23,18 +24,8 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; bg: string }> = {
   'other':         { icon: <Lightbulb size={22} />,    bg: 'bg-amber/40' },
 }
 
-const STATS = [
-  { n: '1,200+', l: 'Projects listed'   },
-  { n: '340+',   l: 'Verified sellers'  },
-  { n: '$2.1M',  l: 'Paid to sellers'   },
-  { n: '98%',    l: 'Buyer satisfaction'},
-]
-
-const HOW_IT_WORKS = [
-  { step: '01', icon: <Package size={24} />,       title: 'Browse & discover',   desc: 'Search hundreds of ready-to-deploy IT projects — e-commerce stores, SaaS dashboards, AI tools, mobile apps, and more.' },
-  { step: '02', icon: <MessageCircle size={24} />, title: 'Message the seller',  desc: 'Ask anything directly in our secure messaging system. See a live demo before you commit. No contact info leaks — ever.' },
-  { step: '03', icon: <Shield size={24} />,        title: 'Buy with confidence', desc: 'Pay once, own the full source code. Escrow protection ensures delivery before funds are released to the seller.' },
-]
+const STAT_NUMS = ['1,200+', '340+', '$2.1M', '98%']
+const HOW_ICONS = [<Package size={24} />, <MessageCircle size={24} />, <Shield size={24} />]
 
 // Scrolling marquee tags
 const MARQUEE_ROW_1 = [
@@ -68,38 +59,39 @@ interface HomeClientProps {
 
 export function HomeClient({ featured }: HomeClientProps) {
   const { data: session } = useSession()
+  const { t } = useLang()
 
   return (
     <div className="bg-cream min-h-screen">
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="border-b-2 border-black overflow-hidden">
-        <div className="max-w-screen-xl mx-auto px-8 pt-16 pb-12 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-screen-xl mx-auto px-8 pt-16 pb-12 grid lg:grid-cols-2 gap-12 items-center min-h-[95vh]">
           {/* Left */}
           <div>
             <div className="inline-flex items-center gap-2 border-2 border-black rounded-pill px-4 py-1.5 bg-amber mb-7 text-sm font-bold btn-gum">
               <PaxlavaLogo size={18} />
-              Built in Azerbaijan · For the world
+              {t.hero.badge}
             </div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.92] mb-6">
-              Buy &amp; sell<br />IT projects<br />
-              <span className="text-teal">instantly.</span>
+              {t.hero.h1a}<br />{t.hero.h1b}<br />
+              <span className="text-teal">{t.hero.h1c}</span>
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-lg">
-              The marketplace where developers sell ready-to-deploy websites, apps, SaaS tools, and scripts. Full source code. One-time payment. Real escrow.
+              {t.hero.sub}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/discover"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-black text-base rounded-pill border-2 border-black hover:bg-gray-900 transition-all btn-gum-lg"
               >
-                Browse projects <ArrowRight size={18} />
+                {t.hero.browse} <ArrowRight size={18} />
               </Link>
               <Link
                 href={session ? '/dashboard/seller' : '/auth/signup?role=seller'}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-amber text-black font-black text-base rounded-pill border-2 border-black hover:bg-amber-light transition-all btn-gum-lg"
               >
-                <TrendingUp size={18} /> Start selling
+                <TrendingUp size={18} /> {t.hero.sell}
               </Link>
             </div>
           </div>
@@ -159,188 +151,96 @@ export function HomeClient({ featured }: HomeClientProps) {
           </div>
         </div>
 
-        {/* Hero scene — animated characters */}
-        <div className="border-t-2 border-black h-[260px] sm:h-[300px] overflow-hidden bg-cream">
-          <svg viewBox="0 0 1400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" className="w-full h-full">
-            {/* Sky gradient */}
-            <defs>
-              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FAF8F3"/>
-                <stop offset="100%" stopColor="#E8F4F3"/>
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="1400" height="200" fill="url(#skyGrad)"/>
+        {/* ── Three-panel showcase ── */}
+        <div className="border-t-2 border-black grid grid-cols-1 md:grid-cols-3 divide-y-2 md:divide-y-0 md:divide-x-2 divide-black">
 
-            {/* Background building/window block — right side */}
-            <rect x="900" y="60" width="500" height="140" rx="4" fill="#B3CAFF" opacity=".4"/>
-            <rect x="920" y="75" width="28" height="28" rx="3" fill="#fff" opacity=".7"/>
-            <rect x="960" y="75" width="28" height="28" rx="3" fill="#fff" opacity=".7"/>
-            <rect x="1000" y="75" width="28" height="28" rx="3" fill="#fff" opacity=".4"/>
-            <rect x="920" y="115" width="28" height="28" rx="3" fill="#fff" opacity=".7"/>
-            <rect x="960" y="115" width="28" height="28" rx="3" fill="#fff" opacity=".4"/>
-            <rect x="1000" y="115" width="28" height="28" rx="3" fill="#E8A838" opacity=".7"/>
+          {/* Panel 1 — Buyers */}
+          <div className="bg-amber px-8 py-14 flex flex-col">
+            <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center mb-6 shadow-hard">
+              <Package size={28} className="text-amber" />
+            </div>
+            <div className="text-[2.2rem] font-black leading-tight tracking-tight mb-4 whitespace-pre-line">
+              {t.home.p1Title}
+            </div>
+            <p className="text-sm text-black/70 leading-relaxed mb-8 flex-1">{t.home.p1Desc}</p>
+            <div className="flex flex-col gap-3">
+              {[t.home.p1I1, t.home.p1I2, t.home.p1I3].map(item => (
+                <div key={item} className="flex items-center gap-2.5 bg-white/60 border border-black/20 rounded-pill px-4 py-2">
+                  <div className="w-2 h-2 rounded-full bg-black shrink-0"/>
+                  <span className="text-xs font-bold">{item}</span>
+                </div>
+              ))}
+              <Link href="/discover" className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white font-black text-sm rounded-pill border-2 border-black btn-gum self-start">
+                {t.home.p1Cta} <ArrowRight size={14}/>
+              </Link>
+            </div>
+          </div>
 
-            {/* Small clouds */}
-            <ellipse cx="150" cy="45" rx="50" ry="18" fill="#fff" opacity=".8"/>
-            <ellipse cx="180" cy="38" rx="36" ry="22" fill="#fff" opacity=".8"/>
-            <ellipse cx="120" cy="48" rx="30" ry="14" fill="#fff" opacity=".8"/>
-            <ellipse cx="650" cy="30" rx="45" ry="16" fill="#fff" opacity=".7"/>
-            <ellipse cx="680" cy="24" rx="32" ry="19" fill="#fff" opacity=".7"/>
+          {/* Panel 2 — Sellers */}
+          <div className="bg-teal text-white px-8 py-14 flex flex-col">
+            <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center mb-6 shadow-hard">
+              <TrendingUp size={28} className="text-teal" />
+            </div>
+            <div className="text-[2.2rem] font-black leading-tight tracking-tight mb-4 whitespace-pre-line">
+              {t.home.p2Title}
+            </div>
+            <p className="text-sm text-white/80 leading-relaxed mb-8 flex-1">{t.home.p2Desc}</p>
+            <div className="flex flex-col gap-3">
+              {([
+                { label: t.home.p2F1, sub: t.home.p2F1Sub },
+                { label: t.home.p2F2, sub: t.home.p2F2Sub },
+                { label: t.home.p2F3, sub: t.home.p2F3Sub },
+              ] as const).map(f => (
+                <div key={f.label} className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5">
+                  <div className="w-2 h-2 rounded-full bg-white shrink-0"/>
+                  <div>
+                    <div className="text-xs font-black">{f.label}</div>
+                    <div className="text-[10px] text-white/60">{f.sub}</div>
+                  </div>
+                </div>
+              ))}
+              <Link href="/auth/signup?role=seller" className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black font-black text-sm rounded-pill border-2 border-black btn-gum self-start">
+                {t.home.p2Cta} <ArrowRight size={14}/>
+              </Link>
+            </div>
+          </div>
 
-            {/* Teal ground */}
-            <rect x="0" y="200" width="1400" height="100" fill="#23A094"/>
-            {/* Ground highlight stripe */}
-            <rect x="0" y="200" width="1400" height="8" fill="#2BB5A8" opacity=".5"/>
-            {/* Road / sidewalk */}
-            <rect x="0" y="258" width="1400" height="42" fill="#F9C74F"/>
-            <line x1="0" y1="264" x2="1400" y2="264" stroke="#000" strokeWidth="1.5" opacity=".2"/>
-            {/* Road dashes */}
-            {[100,300,500,700,900,1100,1300].map(x => (
-              <rect key={x} x={x} y="276" width="60" height="5" rx="2.5" fill="#E8A838" opacity=".5"/>
-            ))}
-
-            {/* Ground bushes / hills */}
-            <ellipse cx="310" cy="205" rx="90" ry="28" fill="#1A7A71"/>
-            <ellipse cx="760" cy="208" rx="120" ry="30" fill="#1A7A71"/>
-            <ellipse cx="1180" cy="205" rx="100" ry="26" fill="#1A7A71"/>
-
-            {/* Grass tufts */}
-            {[180,240,520,680,850,1050,1260,1360].map((x, i) => (
-              <g key={i} stroke="#000" strokeWidth="1.3" opacity=".3">
-                <line x1={x}   y1="200" x2={x-4}   y2="188"/>
-                <line x1={x+5} y1="200" x2={x+5}   y2="186"/>
-                <line x1={x+10} y1="200" x2={x+14} y2="189"/>
-              </g>
-            ))}
-
-            {/* ── Football-goal structure ── */}
-            <rect x="490" y="90" width="4" height="62" fill="#000"/>
-            <rect x="534" y="90" width="4" height="62" fill="#000"/>
-            <rect x="490" y="90" width="48" height="5" fill="#000"/>
-            <rect x="498" y="105" width="30" height="4" fill="#F9C74F"/>
-            <line x1="501" y1="95" x2="501" y2="109" stroke="#000" strokeWidth="1.5"/>
-            <line x1="521" y1="95" x2="521" y2="109" stroke="#000" strokeWidth="1.5"/>
-            {/* Leaning flag pole */}
-            <rect x="568" y="88" width="5" height="68" fill="#000"/>
-            <rect x="568" y="88" width="34" height="5" fill="#000"/>
-            <line x1="602" y1="88" x2="573" y2="156" stroke="#E8A838" strokeWidth="6" strokeLinecap="round"/>
-
-            {/* ── Character 1: person with phone (left) ── */}
-            <g transform="translate(105,95)">
-              {/* Speech bubble */}
-              <rect x="-50" y="-38" width="42" height="30" rx="7" fill="#fff" stroke="#000" strokeWidth="2"/>
-              <line x1="-30" y1="-8" x2="-22" y2="2" stroke="#000" strokeWidth="2"/>
-              <text x="-29" y="-18" textAnchor="middle" fontSize="17" fontWeight="900" fill="#000" fontFamily="sans-serif">$</text>
-              {/* Body */}
-              <rect x="-13" y="22" width="26" height="30" rx="5" fill="#E8A838" stroke="#000" strokeWidth="2"/>
-              {/* Head */}
-              <ellipse cx="0" cy="10" rx="14" ry="14" fill="#E76F51" stroke="#000" strokeWidth="2"/>
-              {/* Legs */}
-              <line x1="-6" y1="52" x2="-10" y2="72" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="6"  y1="52" x2="4"   y2="72" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <rect x="-14" y="68" width="10" height="6" rx="3" fill="#000"/>
-              <rect x="-1"  y="68" width="10" height="6" rx="3" fill="#000"/>
-              {/* Arm holding phone */}
-              <line x1="13" y1="30" x2="30" y2="40" stroke="#000" strokeWidth="3" strokeLinecap="round"/>
-              <rect x="26" y="33" width="14" height="22" rx="3" fill="#333" stroke="#000" strokeWidth="1.5"/>
-              <rect x="28" y="36" width="10" height="14" rx="1" fill="#7B9CF5"/>
-            </g>
-
-            {/* ── Character 2: tree / shrub ── */}
-            <g transform="translate(300,118)">
-              <rect x="-4" y="18" width="8" height="32" fill="#7B3F00" stroke="#000" strokeWidth="1.5"/>
-              <ellipse cx="-15" cy="8"  rx="13" ry="16" fill="#23A094" stroke="#000" strokeWidth="1.5"/>
-              <ellipse cx="13"  cy="0"  rx="11" ry="15" fill="#23A094" stroke="#000" strokeWidth="1.5"/>
-              <ellipse cx="0"   cy="-4" rx="9"  rx="9" ry="17" fill="#23A094" stroke="#000" strokeWidth="1.5"/>
-              <rect x="-15" y="48" width="30" height="20" rx="4" fill="#E76F51" stroke="#000" strokeWidth="2"/>
-            </g>
-
-            {/* ── Character 3: unicyclist with speech bubble ── */}
-            <g transform="translate(660,50)">
-              {/* Speech bubble */}
-              <rect x="-50" y="-10" width="92" height="34" rx="16" fill="#fff" stroke="#000" strokeWidth="2.5"/>
-              <line x1="-18" y1="24" x2="0"   y2="38" stroke="#000" strokeWidth="2.5"/>
-              <text x="-2" y="14" textAnchor="middle" fontSize="13" fontWeight="900" fill="#000" fontFamily="sans-serif">NEAT!</text>
-              {/* Platform */}
-              <rect x="-18" y="52" width="36" height="36" rx="5" fill="#fff" stroke="#000" strokeWidth="2"/>
-              {/* Body */}
-              <ellipse cx="0" cy="26" rx="18" ry="19" fill="#E8A838" stroke="#000" strokeWidth="2"/>
-              {/* Head */}
-              <ellipse cx="0" cy="11" rx="14" ry="14" fill="#E8A838" stroke="#000" strokeWidth="2"/>
-              {/* Hair */}
-              <ellipse cx="0" cy="-1" rx="13" ry="9" fill="#F9C74F" stroke="#000" strokeWidth="1.5"/>
-              {/* Arms */}
-              <ellipse cx="-28" cy="67" rx="8" ry="7" fill="#E8A838" stroke="#000" strokeWidth="1.5"/>
-              <ellipse cx="28"  cy="59" rx="7" ry="7" fill="#E8A838" stroke="#000" strokeWidth="1.5"/>
-              <line x1="-18" y1="64" x2="-28" y2="67" stroke="#000" strokeWidth="2.5"/>
-              <line x1="18"  y1="64" x2="28"  y2="59" stroke="#000" strokeWidth="2.5"/>
-              {/* Laptop */}
-              <rect x="20" y="51" width="12" height="18" rx="2" fill="#333" stroke="#000" strokeWidth="1.5"/>
-              {/* Legs */}
-              <rect x="-15" y="88" width="11" height="56" rx="4" fill="#000"/>
-              <rect x="4"   y="88" width="11" height="56" rx="4" fill="#000"/>
-              {/* Wheel */}
-              <circle cx="0" cy="155" r="22" fill="none" stroke="#000" strokeWidth="3.5"/>
-              <circle cx="0" cy="155" r="6"  fill="#000"/>
-              <line x1="0" y1="133" x2="0"  y2="155" stroke="#000" strokeWidth="2.5"/>
-              <line x1="-22" y1="155" x2="22" y2="155" stroke="#000" strokeWidth="2" opacity=".4"/>
-              {/* Unicycle pedals */}
-              <ellipse cx="-9" cy="148" rx="8" ry="4.5" fill="#E76F51" stroke="#000" strokeWidth="1.5"/>
-              <ellipse cx="9"  cy="148" rx="8" ry="4.5" fill="#E76F51" stroke="#000" strokeWidth="1.5"/>
-            </g>
-
-            {/* ── Character 4: seller at bench with laptop ── */}
-            <g transform="translate(1060,112)">
-              {/* "NEW SALE!" bubble */}
-              <rect x="-55" y="-55" width="130" height="36" rx="9" fill="#fff" stroke="#000" strokeWidth="2.5"/>
-              <line x1="-28" y1="-19" x2="-10" y2="4" stroke="#000" strokeWidth="2.5"/>
-              <text x="8" y="-28" textAnchor="middle" fontSize="11" fontWeight="900" fill="#000" fontFamily="sans-serif">NEW SALE!</text>
-              {/* Dollar bubble top-right */}
-              <rect x="26" y="-68" width="28" height="28" rx="7" fill="#fff" stroke="#000" strokeWidth="2"/>
-              <text x="40" y="-48" textAnchor="middle" fontSize="15" fontWeight="900" fill="#000" fontFamily="sans-serif">$</text>
-              {/* Bench */}
-              <rect x="-60" y="65" width="130" height="10" rx="3" fill="#7B3F00" stroke="#000" strokeWidth="2"/>
-              <rect x="-50" y="74" width="8" height="26" fill="#7B3F00" stroke="#000" strokeWidth="1.5"/>
-              <rect x="42"  y="74" width="8" height="26" fill="#7B3F00" stroke="#000" strokeWidth="1.5"/>
-              {/* Body */}
-              <rect x="-20" y="18" width="40" height="34" rx="6" fill="#E8A838" stroke="#000" strokeWidth="2"/>
-              {/* Head */}
-              <ellipse cx="0" cy="4"   rx="16" ry="16" fill="#E8A838" stroke="#000" strokeWidth="2"/>
-              <ellipse cx="0" cy="-10" rx="14" ry="10" fill="#F9C74F" stroke="#000" strokeWidth="1.5"/>
-              {/* Laptop on lap */}
-              <rect x="-30" y="40" width="60" height="32" rx="5" fill="#333" stroke="#000" strokeWidth="2"/>
-              <rect x="-26" y="44" width="52" height="24" rx="2" fill="#7B9CF5"/>
-              <rect x="-36" y="71" width="72" height="5" rx="2.5" fill="#555" stroke="#000" strokeWidth="1.5"/>
-              {/* Legs */}
-              <line x1="-9" y1="52" x2="-14" y2="72" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="9"  y1="52" x2="20"  y2="72" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-            </g>
-
-            {/* ── Character 5: person walking (far right) ── */}
-            <g transform="translate(1300,105)">
-              {/* Dollar bubble */}
-              <rect x="-18" y="-28" width="36" height="32" rx="8" fill="#fff" stroke="#000" strokeWidth="2.5"/>
-              <text x="0" y="-5" textAnchor="middle" fontSize="20" fontWeight="900" fill="#000" fontFamily="sans-serif">$</text>
-              <line x1="-4" y1="4" x2="-8" y2="14" stroke="#000" strokeWidth="2"/>
-              {/* Body */}
-              <rect x="-12" y="26" width="24" height="30" rx="5" fill="#23A094" stroke="#000" strokeWidth="2"/>
-              {/* Head */}
-              <ellipse cx="0" cy="14" rx="13" ry="13" fill="#E76F51" stroke="#000" strokeWidth="2"/>
-              {/* Arms */}
-              <line x1="-12" y1="33" x2="-24" y2="46" stroke="#000" strokeWidth="3" strokeLinecap="round"/>
-              <line x1="12"  y1="33" x2="22"  y2="44" stroke="#000" strokeWidth="3" strokeLinecap="round"/>
-              {/* Legs walking */}
-              <line x1="-5" y1="56" x2="-12" y2="74" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="5"  y1="56" x2="10"  y2="74" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <rect x="-16" y="70" width="10" height="6" rx="3" fill="#000"/>
-              <rect x="5"   y="70" width="10" height="6" rx="3" fill="#000"/>
-            </g>
-          </svg>
+          {/* Panel 3 — Trust */}
+          <div className="bg-[#F9C74F] px-8 py-14 flex flex-col">
+            <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center mb-6 shadow-hard">
+              <Shield size={28} className="text-[#F9C74F]" />
+            </div>
+            <div className="text-[2.2rem] font-black leading-tight tracking-tight mb-4 whitespace-pre-line">
+              {t.home.p3Title}
+            </div>
+            <p className="text-sm text-black/70 leading-relaxed mb-8 flex-1">{t.home.p3Desc}</p>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {([
+                { n: '98%',  l: t.home.p3S1 },
+                { n: '$0',   l: t.home.p3S2 },
+                { n: '24h',  l: t.home.p3S3 },
+                { n: '100%', l: t.home.p3S4 },
+              ] as const).map(s => (
+                <div key={s.l} className="bg-white/60 border border-black/20 rounded-xl p-3 text-center">
+                  <div className="text-xl font-black">{s.n}</div>
+                  <div className="text-[10px] font-bold text-black/60 uppercase tracking-wider">{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <Link href="/features" className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white font-black text-sm rounded-pill border-2 border-black btn-gum self-start">
+              {t.home.p3Cta} <ArrowRight size={14}/>
+            </Link>
+          </div>
         </div>
 
         {/* Stats bar */}
         <div className="border-t-2 border-black grid grid-cols-2 md:grid-cols-4">
-          {STATS.map(s => (
+          {([
+            { n: STAT_NUMS[0], l: t.stats.projects     },
+            { n: STAT_NUMS[1], l: t.stats.sellers      },
+            { n: STAT_NUMS[2], l: t.stats.paid         },
+            { n: STAT_NUMS[3], l: t.stats.satisfaction },
+          ] as const).map(s => (
             <div key={s.l} className="text-center py-5 border-r-2 border-black last:border-r-0 odd:border-b-2 md:odd:border-b-0 border-b-2 md:border-b-0">
               <div className="text-2xl font-black">{s.n}</div>
               <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mt-1">{s.l}</div>
@@ -352,8 +252,8 @@ export function HomeClient({ featured }: HomeClientProps) {
       {/* ── SCROLLING MARQUEE ────────────────────────────────── */}
       <section className="border-b-2 border-black bg-white py-10 overflow-hidden">
         <div className="text-center mb-6 px-8">
-          <div className="section-label">Unlimited possibilities</div>
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight">Discover the best IT projects</h2>
+          <div className="section-label">{t.home.marqueeLabel}</div>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight">{t.home.marqueeH2}</h2>
         </div>
         <div className="flex flex-col gap-3 overflow-hidden select-none">
           {/* Row 1 — scrolls left */}
@@ -398,8 +298,8 @@ export function HomeClient({ featured }: HomeClientProps) {
       {/* ── CATEGORIES ───────────────────────────────────────── */}
       <section className="border-b-2 border-black px-8 py-12">
         <div className="max-w-screen-xl mx-auto">
-          <div className="section-label">Browse by type</div>
-          <h2 className="heading-lg mb-8">Every kind of IT project.</h2>
+          <div className="section-label">{t.home.catLabel}</div>
+          <h2 className="heading-lg mb-8">{t.home.catH2}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
               const meta = CATEGORY_META[key] || { icon: <Code size={22} />, bg: 'bg-cream' }
@@ -424,14 +324,14 @@ export function HomeClient({ featured }: HomeClientProps) {
       {featured.length > 0 && (
         <section className="border-b-2 border-black">
           <div className="px-8 py-10">
-            <div className="section-label">Handpicked</div>
+            <div className="section-label">{t.home.featLabel}</div>
             <div className="flex items-end justify-between mb-6">
-              <h2 className="heading-lg">Featured projects</h2>
+              <h2 className="heading-lg">{t.home.featH2}</h2>
               <Link
                 href="/discover"
                 className="inline-flex items-center gap-1 text-sm font-bold border-b-2 border-black hover:text-gray-500 transition-colors shrink-0 ml-4"
               >
-                See all <ArrowRight size={14} />
+                {t.home.featAll} <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -446,16 +346,20 @@ export function HomeClient({ featured }: HomeClientProps) {
       {/* ── HOW IT WORKS ─────────────────────────────────────── */}
       <section className="border-b-2 border-black px-8 py-16">
         <div className="max-w-screen-xl mx-auto">
-          <div className="section-label">Simple process</div>
-          <h2 className="heading-lg mb-12">How Paxlava works</h2>
+          <div className="section-label">{t.home.howLabel}</div>
+          <h2 className="heading-lg mb-12">{t.home.howH2}</h2>
           <div className="grid md:grid-cols-3 gap-0 border-2 border-black rounded-xl overflow-hidden">
-            {HOW_IT_WORKS.map((item, i) => (
+            {([
+              { step: '01', title: t.home.how1Title, desc: t.home.how1Desc },
+              { step: '02', title: t.home.how2Title, desc: t.home.how2Desc },
+              { step: '03', title: t.home.how3Title, desc: t.home.how3Desc },
+            ] as const).map((item, i) => (
               <div
                 key={item.step}
-                className={`p-8 ${i < HOW_IT_WORKS.length - 1 ? 'border-b-2 md:border-b-0 md:border-r-2 border-black' : ''} bg-white hover:bg-cream transition-colors`}
+                className={`p-8 ${i < 2 ? 'border-b-2 md:border-b-0 md:border-r-2 border-black' : ''} bg-white hover:bg-cream transition-colors`}
               >
                 <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center mb-5">
-                  {item.icon}
+                  {HOW_ICONS[i]}
                 </div>
                 <div className="text-5xl font-black text-black/8 mb-3 leading-none">{item.step}</div>
                 <h3 className="text-xl font-black mb-3">{item.title}</h3>
@@ -470,26 +374,26 @@ export function HomeClient({ featured }: HomeClientProps) {
       <section className="border-b-2 border-black bg-black text-white px-8 py-20">
         <div className="max-w-screen-xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="section-label text-white/40">For developers</div>
+            <div className="section-label text-white/40">{t.home.sellerLabel}</div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight mb-6">
-              Turn your side project<br />into passive income.
+              {t.home.sellerH2}
             </h2>
             <p className="text-white/70 text-lg leading-relaxed mb-8 max-w-lg">
-              List your ready-to-deploy project, set your price, and connect with buyers worldwide. 10% platform fee. Instant payouts. No subscriptions.
+              {t.home.sellerSub}
             </p>
             <Link
               href={session ? '/dashboard/seller' : '/auth/signup?role=seller'}
               className="inline-flex items-center gap-2 px-8 py-4 bg-amber text-black font-black text-base rounded-pill border-2 border-amber hover:bg-amber-light transition-all btn-gum-lg"
             >
-              <TrendingUp size={18} /> Start selling today
+              <TrendingUp size={18} /> {t.home.sellerCta}
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: <TrendingUp size={20} />, title: '90% of revenue',    desc: 'Keep 90% of every sale. We take just 10%.',                  bg: 'bg-teal' },
-              { icon: <Shield size={20} />,     title: 'Secure escrow',     desc: 'Funds held until buyer confirms delivery.',                   bg: 'bg-amber' },
-              { icon: <MessageCircle size={20}/>, title: 'Direct messaging', desc: 'Communicate with buyers before every sale.',                  bg: 'bg-cobalt' },
-              { icon: <Zap size={20} />,        title: 'Go live in minutes', desc: 'List your project and start selling today.',                  bg: 'bg-coral' },
+              { icon: <TrendingUp size={20} />,   title: t.home.sF1, desc: t.home.sF1Desc, bg: 'bg-teal' },
+              { icon: <Shield size={20} />,       title: t.home.sF2, desc: t.home.sF2Desc, bg: 'bg-amber' },
+              { icon: <MessageCircle size={20} />,title: t.home.sF3, desc: t.home.sF3Desc, bg: 'bg-cobalt' },
+              { icon: <Zap size={20} />,          title: t.home.sF4, desc: t.home.sF4Desc, bg: 'bg-coral' },
             ].map(f => (
               <div key={f.title} className="bg-white/8 border border-white/15 rounded-xl p-5">
                 <div className={`w-9 h-9 rounded-lg ${f.bg} flex items-center justify-center mb-3`}>{f.icon}</div>
@@ -504,14 +408,14 @@ export function HomeClient({ featured }: HomeClientProps) {
       {/* ── TRUST / PROTECTION ───────────────────────────────── */}
       <section className="border-b-2 border-black px-8 py-14">
         <div className="max-w-screen-xl mx-auto">
-          <div className="section-label">Why buyers trust us</div>
-          <h2 className="heading-lg mb-10">Built-in protections.</h2>
+          <div className="section-label">{t.home.trustLabel}</div>
+          <h2 className="heading-lg mb-10">{t.home.trustH2}</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: <Shield size={24} />,       bg: 'bg-teal',    title: 'Escrow payments',     desc: 'Money is held securely until you receive and verify the source code.' },
-              { icon: <MessageCircle size={24} />, bg: 'bg-cobalt',  title: 'Blocked contact info', desc: 'No phone numbers or social handles in chat — all communication stays on-platform.' },
-              { icon: <Play size={24} />,          bg: 'bg-amber',   title: 'Live demos',           desc: 'Try before you buy. Many listings include a live, working demo URL.' },
-              { icon: <Star size={24} />,          bg: 'bg-yellow',  title: 'Verified sellers',     desc: 'Sellers are reviewed by our team before their listings go live.' },
+              { icon: <Shield size={24} />,        bg: 'bg-teal',   title: t.home.t1, desc: t.home.t1Desc },
+              { icon: <MessageCircle size={24} />,  bg: 'bg-cobalt', title: t.home.t2, desc: t.home.t2Desc },
+              { icon: <Play size={24} />,           bg: 'bg-amber',  title: t.home.t3, desc: t.home.t3Desc },
+              { icon: <Star size={24} />,           bg: 'bg-yellow', title: t.home.t4, desc: t.home.t4Desc },
             ].map(f => (
               <div key={f.title} className="bg-white border-2 border-black rounded-xl p-6 hover:shadow-hard transition-all card-lift">
                 <div className={`w-12 h-12 rounded-xl ${f.bg} border-2 border-black flex items-center justify-center mb-4`}>{f.icon}</div>
@@ -530,23 +434,23 @@ export function HomeClient({ featured }: HomeClientProps) {
             <PaxlavaLogo size={56} />
           </div>
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-5">
-            Ready to start?
+            {t.home.ctaH2}
           </h2>
           <p className="text-gray-500 text-lg mb-8">
-            Join hundreds of developers already buying and selling on Paxlava.
+            {t.home.ctaSub}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
               href="/discover"
               className="px-8 py-4 bg-black text-white font-black text-base rounded-pill border-2 border-black hover:bg-gray-900 transition-all btn-gum-lg"
             >
-              Browse marketplace
+              {t.home.ctaBrowse}
             </Link>
             <Link
               href={session ? '/dashboard/seller' : '/auth/signup?role=seller'}
               className="px-8 py-4 bg-cream text-black font-black text-base rounded-pill border-2 border-black hover:bg-amber transition-all btn-gum-lg"
             >
-              Sell a project
+              {t.home.ctaSell}
             </Link>
           </div>
         </div>
@@ -558,17 +462,17 @@ export function HomeClient({ featured }: HomeClientProps) {
           <div className="flex items-center gap-2.5">
             <PaxlavaLogo size={30} />
             <span className="font-black text-base">Paxlava</span>
-            <span className="text-sm text-gray-400 ml-2">Made in Azerbaijan</span>
+            <span className="text-sm text-gray-400 ml-2">{t.footer.tagline}</span>
           </div>
           <nav className="flex flex-wrap gap-6 text-sm font-semibold text-gray-500">
-            <Link href="/discover" className="hover:text-black transition-colors">Discover</Link>
-            <Link href="/auth/signup?role=seller" className="hover:text-black transition-colors">Sell</Link>
-            <Link href="/about"   className="hover:text-black transition-colors">About</Link>
-            <Link href="/terms"   className="hover:text-black transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-black transition-colors">Privacy</Link>
+            <Link href="/discover"              className="hover:text-black transition-colors">{t.home.fDiscover}</Link>
+            <Link href="/auth/signup?role=seller" className="hover:text-black transition-colors">{t.home.fSell}</Link>
+            <Link href="/about"                 className="hover:text-black transition-colors">{t.home.fAbout}</Link>
+            <Link href="/terms"                 className="hover:text-black transition-colors">{t.home.fTerms}</Link>
+            <Link href="/privacy"               className="hover:text-black transition-colors">{t.home.fPrivacy}</Link>
           </nav>
           <div className="text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} Paxlava. All rights reserved.
+            &copy; {new Date().getFullYear()} Paxlava. {t.footer.rights}
           </div>
         </div>
       </footer>
